@@ -9,12 +9,14 @@ import sys
 
 from models.II2S import II2S
 from e4e.e4e_projection import e4e_projection_im_path
-from options.face_embed_options import FaceEmbedOptions
+from options.face_embed_options import face_opts
 from utils.model_utils import google_drive_paths, download_weight
 from utils.shape_predictor import align_face
 from models.stylegan2.model import Generator
 import torchvision
 from torchvision.utils import save_image
+from argparse import Namespace
+from argparse import ArgumentParser
 toPIL = torchvision.transforms.ToPILImage()
 
 
@@ -71,10 +73,10 @@ def main(args):
 
 if __name__ == "__main__":
 
-    parser = FaceEmbedOptions().parser
+    parser = ArgumentParser()
 
     # I/O arguments
-    parser.add_argument('--style_img', type=str, default='000600.png',
+    parser.add_argument('--style_img', type=str, default='titan_erwin.png',
                         help='Style image')
     parser.add_argument('--n_sample', type=int, default=4,
                         help='Number of generated images')
@@ -82,5 +84,6 @@ if __name__ == "__main__":
                         help='Truncation')
     parser.add_argument('--output_folder', type=str, default='output/generate')
     args = parser.parse_args()
+    args = Namespace(**vars(args), **vars(face_opts))
 
     main(args)

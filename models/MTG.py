@@ -13,6 +13,7 @@ from utils.model_utils import google_drive_paths, download_weight
 import dlib
 from utils.shape_predictor import align_face
 from models.II2S import II2S
+from pathlib import Path
 toPIL = torchvision.transforms.ToPILImage()
 
 def requires_grad(model, flag=True):
@@ -144,7 +145,7 @@ class MTG(torch.nn.Module):
 
     def embed_style_img(self, style_img):
         from options.style_embed_options import II2S_s_opts
-        aligned_im_path = os.path.join('style_images', 'Aligned', style_img)
+        aligned_im_path = os.path.join('style_images', 'Aligned', Path(style_img).stem + '.png')
         unaligned_im_path = os.path.join('style_images', 'Unaligned', style_img)
         if os.path.exists(aligned_im_path) or os.path.exists(unaligned_im_path):
             if not os.path.exists(aligned_im_path):
@@ -213,32 +214,32 @@ class MTG(torch.nn.Module):
             trainable_img = self.generator_trainable(w_styles, input_is_latent=True, truncation=1,
                                                      randomize_noise=randomize_noise)[0]
             new_img = self.ZP_img_tensor
-            clip_loss_domain = torch.sum(torch.stack([self.clip_model_weights[model_name] * self.clip_loss_models[
+            clip_across_loss = torch.sum(torch.stack([self.clip_model_weights[model_name] * self.clip_loss_models[
                 model_name](frozen_img, old_img, trainable_img, new_img, True) for model_name in
                                                       self.clip_model_weights.keys()]))
 
-            clip_loss_in = torch.sum(
+            clip_within_loss = torch.sum(
                 torch.stack([self.clip_model_weights[model_name] * self.clip_loss_models[model_name](
                     frozen_img, old_img, trainable_img, new_img, False) for model_name in
                              self.clip_model_weights.keys()]))
 
-            clip_loss_rec = torch.sum(torch.stack(
+            ref_clip_loss = torch.sum(torch.stack(
                 [self.clip_model_weights[model_name] * self.clip_loss_models[model_name].rec_loss(rec_img, new_img) for
                  model_name in self.clip_model_weights.keys()]))
 
             l2_loss = self.mse(self.D_VGG(rec_img), self.ZP_img_tensor_256)
             lpips_loss = self.percept(self.D_VGG(rec_img), self.ZP_img_tensor_256).mean()
 
-            loss = self.args.domain_lambda * clip_loss_domain + self.args.rec_lambda * clip_loss_rec + \
-                   self.args.lpips_lambda * lpips_loss + self.args.l2_lambda * l2_loss + self.args.in_lambda * clip_loss_in
+            loss = self.args.clip_across_lambda * clip_across_loss + self.args.ref_clip_lambda * ref_clip_loss + \
+                   self.args.lpips_lambda * lpips_loss + self.args.l2_lambda * l2_loss + self.args.clip_within_lambda * clip_within_loss
 
             if self.args.verbose:
                 loss_dict = {}
-                loss_dict['l2'] = l2_loss
-                loss_dict['lpips'] = lpips_loss
-                loss_dict['domain'] = clip_loss_domain
-                loss_dict['rec'] = clip_loss_rec
-                loss_dict['in'] = self.in_lambda * clip_loss_in
+                loss_dict['l2'] = self.args.l2_lambda * l2_loss
+                loss_dict['lpips'] = self.args.lpips_lambda * lpips_loss
+                loss_dict['clip_across'] = self.args.clip_across_lambda * clip_across_loss
+                loss_dict['ref_clip'] = self.args.ref_clip_lambda * ref_clip_loss
+                loss_dict['clip_within'] = self.clip_within_lambda * clip_within_loss
 
                 summary = f'Loss | ' + ' | '.join(
                     [f'{x}: {y:.4f}' for x, y in loss_dict.items()])

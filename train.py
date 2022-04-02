@@ -32,9 +32,12 @@ def train(args, output_dir):
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
 
-    # Training loop
+    # Set fixed sample
     fixed_z = torch.randn(args.n_sample, 512, device=args.device)
+    save_image(net, fixed_z, args, sample_dir, -1)
 
+
+    # Training loop
     pbar = tqdm(range(args.iter))
     for i in pbar:
 
@@ -54,29 +57,44 @@ def train(args, output_dir):
         g_optim.step()
         pbar.set_description(f"Finetuning Generator | Total loss: {loss}")
 
-        if i % args.output_interval == 0:
-            net.eval()
+        if (i + 1) % args.vis_interval == 0 or (i + 1) == args.iter:
+            save_image(net, fixed_z, args, sample_dir, i)
 
-            with torch.no_grad():
-                [sampled_src, sampled_dst, rec_dst, without_color_dst], loss = net([fixed_z],
-                                                                                   truncation=args.sample_truncation,
-                                                                                   inference=True)
-                grid_rows = int(args.n_sample ** 0.5)
-                save_images(sampled_dst, sample_dir, "dst", grid_rows, i)
-                save_images(without_color_dst, sample_dir, "without_color", grid_rows, i)
-                toPIL(((rec_dst[0] + 1) / 2).cpu().detach().clamp(0, 1)).save(f"{sample_dir}/rec_{i}.png")
+        if args.save_interval is not None and ((i + 1) % args.save_interval == 0 or (i + 1) == args.iter):
+            ckpt_name = '{}/{}.pt'.format(ckpt_dir, str(i + 1).zfill(6))
+            save_checkpoint(net, g_optim, style_latent, ckpt_name)
 
-        if (args.save_interval is not None) and (i >= 300) and (i % args.save_interval == 0):
-            torch.save(
-                {
-                    "g_ema": net.generator_trainable.generator.state_dict(),
-                    "g_optim": g_optim.state_dict(),
-                    "latent_avg": net.generator_trainable.mean_latent,
-                    "style_latent": style_latent
+    ckpt_name = '{}/{}.pt'.format(ckpt_dir, Path(args.style_img).stem)
+    save_checkpoint(net, g_optim, style_latent, ckpt_name)
 
-                },
-                f"{ckpt_dir}/{str(i).zfill(6)}.pt",
-            )
+
+
+
+def save_image(net, fixed_z, args, sample_dir, i):
+    net.eval()
+    with torch.no_grad():
+        [sampled_src, sampled_dst, rec_dst, without_color_dst], loss = net([fixed_z],
+                                                                           truncation=args.sample_truncation,
+                                                                           inference=True)
+        grid_rows = int(args.n_sample ** 0.5)
+        save_images(sampled_dst, sample_dir, "dst", grid_rows, i+1)
+        save_images(without_color_dst, sample_dir, "without_color", grid_rows, i+1)
+        toPIL(((rec_dst[0] + 1) / 2).cpu().detach().clamp(0, 1)).save(f"{sample_dir}/rec_{i + 1}.png")
+
+def save_checkpoint(net, g_optim, style_latent, ckpt_name):
+    torch.save(
+        {
+            "g_ema": net.generator_trainable.generator.state_dict(),
+            "g_optim": g_optim.state_dict(),
+            "latent_avg": net.generator_trainable.mean_latent,
+            "style_latent": style_latent
+
+        },
+        ckpt_name
+    )
+
+
+
 
 
 
@@ -86,7 +104,7 @@ if __name__ == "__main__":
     parser = option.parser
 
     # I/O arguments
-    parser.add_argument('--style_img', type=str, default='anastasia.png',
+    parser.add_argument('--style_img', type=str, default='moana.jpg',
                         help='Style image')
     parser.add_argument('--output_dir', type=str, default='output/train')
     args = option.parse()

@@ -1,35 +1,31 @@
-from argparse import ArgumentParser
-class FaceEmbedOptions(object):
+from argparse import Namespace
 
 
-    def __init__(self):
-        self.parser = ArgumentParser()
-        self.initialize()
+opts = Namespace()
 
-    def initialize(self):
+# StyleGAN2 setting
+opts.size = 1024
+opts.ckpt = "pretrained_models/ffhq.pt"
+opts.channel_multiplier = 2
+opts.latent = 512
+opts.n_mlp = 8
 
-        # StyleGAN2 setting
-        self.parser.add_argument('--size', type=int, default=1024)
-        self.parser.add_argument('--ckpt', type=str, default="pretrained_models/ffhq.pt")
-        self.parser.add_argument('--channel_multiplier', type=int, default=2)
-        self.parser.add_argument('--latent', type=int, default=512)
-        self.parser.add_argument('--n_mlp', type=int, default=8)
+# loss options
+opts.percept_lambda = 1.0
+opts.l2_lambda = 1.0
+opts.p_norm_lambda = 1e-3
 
-        # loss options
-        self.parser.add_argument('--percept_lambda', type=float, default=1.0, help='Perceptual loss multiplier factor')
-        self.parser.add_argument('--l2_lambda', type=float, default=1.0, help='L2 loss multiplier factor')
-        self.parser.add_argument('--p_norm_lambda', type=float, default=0.001, help='P-norm Regularizer multiplier factor')
+# arguments
+opts.device = 'cuda'
+opts.seed = 2
+opts.tile_latent = False
+opts.opt_name = 'adam'
+opts.learning_rate = 0.01
+opts.lr_schedule = 'fixed'
+# opts.steps = 1300
+opts.steps = 1000
+opts.save_intermediate = False
+opts.save_interval = 300
+opts.verbose = False
 
-        # arguments
-        self.parser.add_argument('--device', type=str, default='cuda')
-        self.parser.add_argument('--seed', type=int, default=2)
-        self.parser.add_argument('--tile_latent', action='store_true', help='Whether to forcibly tile the same latent N times')
-        self.parser.add_argument('--opt_name', type=str, default='adam', help='Optimizer to use in projected gradient descent')
-        self.parser.add_argument('--learning_rate', type=float, default=0.01, help='Learning rate to use during optimization')
-        self.parser.add_argument('--lr_schedule', type=str, default='fixed', help='fixed, linear1cycledrop, linear1cycle')
-        # self.parser.add_argument('--steps', type=int, default=1300, help='Number of optimization steps')
-        self.parser.add_argument('--steps', type=int, default=800, help='Number of optimization steps')
-        self.parser.add_argument('--save_intermediate', action='store_true',
-                            help='Whether to store and save intermediate HR and LR images during optimization')
-        self.parser.add_argument('--save_interval', type=int, default=300, help='Latent checkpoint interval')
-        self.parser.add_argument('--verbose', action='store_true', help='Print loss information')
+face_opts = opts

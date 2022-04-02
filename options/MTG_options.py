@@ -35,12 +35,12 @@ class MTGOptions(object):
         # Loss Setting
         #################################################################
         self.parser.add_argument(
-            "--domain_lambda",
+            "--clip_across_lambda",
             type=float,
             default=1.0,
         )
         self.parser.add_argument(
-            "--rec_lambda",
+            "--ref_clip_lambda",
             type=float,
             default=30,
         )
@@ -56,7 +56,7 @@ class MTGOptions(object):
         )
 
         self.parser.add_argument(
-            "--in_lambda",
+            "--clip_within_lambda",
             type=float,
             default=0.5,
         )
@@ -124,7 +124,7 @@ class MTGOptions(object):
         )
 
         self.parser.add_argument(
-            "--output_interval",
+            "--vis_interval",
             type=int,
             default=50,
             help="How often to save an output image",
@@ -144,7 +144,7 @@ class MTGOptions(object):
         )
 
         self.parser.add_argument(
-            "--iter", type=int, default=601, help="total training iterations"
+            "--iter", type=int, default=600, help="total training iterations"
         )
         self.parser.add_argument(
             "--batch", type=int, default=4, help="batch sizes for each gpus"
@@ -202,3 +202,6 @@ class MTGOptions(object):
         opts.train_gen_ckpt = opts.train_gen_ckpt or opts.frozen_gen_ckpt
 
         return opts
+
+
+
