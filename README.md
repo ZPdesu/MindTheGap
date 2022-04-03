@@ -27,6 +27,7 @@ Official Pytorch Implementation of "<a href="https://arxiv.org/abs/2110.08398"> 
 ### Google Colab
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ZPdesu/MindTheGap/blob/main/MTG_playground.ipynb)
 
+
 We set up a [Colab Notebook](https://colab.research.google.com/github/ZPdesu/MindTheGap/blob/main/MTG_playground.ipynb) so you can play with it yourself :) Everything to get started is in it!
 
 ### Prerequisites
