@@ -91,7 +91,7 @@ python inference.py --input_img Yui.jpg --style_img titan_erwin.png --embedding_
 ```
 **Remark**: Although using e4e can save inference time, its embedding results are sometimes very different from the input image.
 <p align="left">
-<img src="docs/assets/e4eVSii2s.png" width="400px"/>
+<img src="docs/assets/e4eVSii2s.png" width="600px"/>
 </p>
 
 
