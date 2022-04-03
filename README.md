@@ -9,21 +9,24 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2110.08398-b31b1b.svg)](https://arxiv.org/abs/2110.08398)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ZPdesu/MindTheGap/blob/main/MTG_playground.ipynb)
 [![ICLR](https://img.shields.io/badge/ICLR-Presentation-blue)](https://recorder-v3.slideslive.com/?share=63876&s=521f3835-b85b-4c4a-8452-0281f9553ad8)
-[![Project Page](https://img.shields.io/badge/Project Page-MTG-blue)](https://zpdesu.github.io/MindTheGap)
+[![Project Page](https://img.shields.io/badge/Project%20Page-MTG-yellow)](https://zpdesu.github.io/MindTheGap)
 
 
 > **Abstract:** We present a new method for one shot domain adaptation. The input to our method is trained GAN that can produce images in domain A and a single reference image I_B from domain B. The proposed algorithm can translate any output of the trained GAN from domain A to domain B. There are two main advantages of our method compared to the current state of the art: First, our solution achieves higher visual quality, e.g. by noticeably reducing overfitting. Second, our solution allows for more degrees of freedom to control the domain gap, i.e. what aspects of image I_B are used to define the domain B. Technically, we realize the new method by building on a pre-trained StyleGAN generator as GAN and a pre-trained CLIP model for representing the domain gap. We propose several new regularizers for controlling the domain gap to optimize the weights of the pre-trained StyleGAN generator to output images in domain B instead of domain A. The regularizers prevent the optimization from taking on too many attributes of the single reference image. Our results show significant visual improvements over the state of the art as well as multiple applications that highlight improved control.
 
 
 <p align="center">
-<img src="docs/assets/TMP.png" width="800px"/>
+<img src="docs/assets/teaser.png" width="800px"/>
 </p>
 
 ## Description
-Official Pytorch Implementation of "<a href="https://arxiv.org/abs/2110.08398"> Mind the Gap: Domain Gap Control for Single Shot Domain Adaptation for Generative Adversarial Networks</a>".
+Official Pytorch Implementation of "<a href="https://arxiv.org/abs/2110.08398"> Mind the Gap: Domain Gap Control for Single Shot Domain Adaptation for Generative Adversarial Networks</a>"
 
 
 ## Getting Started
+### Google Colab
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ZPdesu/MindTheGap/blob/main/MTG_playground.ipynb)
+We set up a [Colab Notebook](https://colab.research.google.com/github/ZPdesu/MindTheGap/blob/main/MTG_playground.ipynb) so you can play with it yourself :) Everything to get started is in it!
 
 ### Prerequisites
 - Linux or macOS
@@ -38,7 +41,7 @@ cd MindTheGap
 ```
 - Dependencies:
 We recommend running this repository using [Anaconda](https://docs.anaconda.com/anaconda/install/).
-All dependencies for defining the environment are provided in `environment/environment.yml`.
+All dependencies for defining the environment are provided in `./environment/environment.yml`.
 ```
 conda env create -f environment/environment.yml
 ```
@@ -82,7 +85,7 @@ Transfer the pretrained style onto a given image:
 python inference.py --input_img Yui.jpg --style_img titan_erwin.png --embedding_method II2S
 ```
 
-Put the unprocessed input image (e.g. Yui.jpg) to `face_images/Unaligned` folder. After the code runs, the aligned input image will be saved in  `face_images/Aligned`, and the corresponding embedding latent code will be saved in `inversions/II2S`. Users can find output results in `output/inference`.
+Put the unprocessed input image (e.g. Yui.jpg) to `./face_images/Unaligned`. After the code runs, the aligned input image will be saved in  `./face_images/Aligned`, and the corresponding embedding latent code will be saved in `./inversions/II2S`. Users can find output results in `./output/inference`.
 
 
 To speed up runtime, users can choose to use e4e embeddings at inference time.
@@ -91,49 +94,55 @@ python inference.py --input_img Yui.jpg --style_img titan_erwin.png --embedding_
 ```
 **Remark**: Although using e4e can save inference time, its embedding results are sometimes very different from the input image.
 <p align="left">
-<img src="docs/assets/e4eVSii2s.png" width="600px"/>
+<img src="docs/assets/II2Svse4e.png" width="600px"/>
+</p>
+
+
+## Generation
+Generate random face images using pretrained styles. (Results are saved in the `./output/generate` folder):
+```
+python generate.py --style_img titan_erwin.png --n_sample 5 --truc 0.5
+```
+
+
+<p align="left">
+<img src="docs/assets/random1.png" width="600px"/>
+<img src="docs/assets/random_titan_erwin.png" width="600px"/>
+</p>
+
+
+## Train on your own style image
+Put your own style image in the `./style_images/Unaligned` folder and run
+
+```
+python train.py --style_img moana.jpg
+```
+The finetuned generator will be saved in the  `./output/train` folder. More training options can be found in `./options/MTG_options.py`.
+For example, specify loss weights and training iterations.
+
+```
+python train.py --style_img moana.jpg --clip_across_lambda 1 --ref_clip_lambda 30 --l2_lambda 10 --lpips_lambda 10 --clip_within_lambda 0.5 --iter 600
+```
+
+<p align="left">
+<img src="docs/assets/moana.jpg" width="200px"/> <img src="docs/assets/moana.png" width="200px"/>
+</p>
+
+Iteration: 0
+<p align="left">
+<img src="docs/assets/random2.png" width="600px"/>
+<img src="docs/assets/random_moana_0.png" width="600px"/>
+</p>
+
+Iteration: 600
+<p align="left">
+<img src="docs/assets/random2.png" width="600px"/>
+<img src="docs/assets/random_moana_600.png" width="600px"/>
 </p>
 
 
 
 
-
-
-
-### Different input formats
-Please perform the following adjustments in `main.py` to expand the input types.
-
-1. Input folder
-```
-ii2s.invert_images(image_path=args.input_dir, output_dir=args.output_dir)
-```
-2. Image path
-```
-ii2s.invert_images(image_path='input/28.jpg', output_dir=args.output_dir)
-```
-3. Image path list
-```
-ii2s.invert_images(image_path=['input/28.jpg', 'input/90.jpg'], output_dir=args.output_dir)
-```
-
-### Save output and return latents
-To save output and return latent codes, users can make the follwoing adjustments in `main.py`.
-```
-final_latents = ii2s.invert_images(image_path=args.input_dir, output_dir=args.output_dir, return_latents=True, save_output=True)
-```
-
-### Align input images
-By default, the input should be aligned images with 1024x1024 resolution. Users can run `align_face.py` to align unprocessed images and save them in another folder, then make the following modifications in `main.py`.
-
-```
-final_latents = ii2s.invert_images(image_path=args.input_dir, output_dir=args.output_dir, return_latents=True, save_output=True, align_input=False)
-```
-
-We also allow the alignment step during the embedding process.
-
-```
-final_latents = ii2s.invert_images(image_path=args.input_dir, output_dir=args.output_dir, return_latents=True, save_output=True, align_input=True)
-```
 
 ## BibTeX
 
@@ -147,3 +156,5 @@ final_latents = ii2s.invert_images(image_path=args.input_dir, output_dir=args.ou
     primaryClass={cs.CV}
 }
 ```
+## Acknowledgments
+This code borrows from [StyleGAN2 by rosalinity](https://github.com/rosinality/stylegan2-pytorch) and [II2S](https://github.com/ZPdesu/II2S). Some snippets of colab code from [StyleGAN-NADA](https://github.com/rinongal/StyleGAN-nada) and [JoJoGAN](https://github.com/mchong6/JoJoGAN)

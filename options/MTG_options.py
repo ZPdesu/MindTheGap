@@ -178,7 +178,7 @@ class MTGOptions(object):
 
         self.parser.add_argument(
             "--sample_truncation",
-            default=0.7,
+            default=0.5,
             type=float,
             help="Truncation value for sampled test images."
         )

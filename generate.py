@@ -61,6 +61,7 @@ def main(args):
     with torch.no_grad():
         outputs = generator([output_latents], input_is_latent=True)[0]
         nrows = int(args.n_sample ** 0.5)
+        # nrows = args.n_sample
         save_image(
             outputs,
             os.path.join(output_folder, 'style_{}_sample_{}.png'.format(Path(args.style_img).stem, args.n_sample)),
