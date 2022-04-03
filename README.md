@@ -90,8 +90,9 @@ To speed up runtime, users can choose to use e4e embeddings at inference time.
 python inference.py --input_img Yui.jpg --style_img titan_erwin.png --embedding_method e4e
 ```
 **Remark**: Although using e4e can save inference time, its embedding results are sometimes very different from the input image.
-![](docs/assets/e4eVSii2s.png)
-
+<p align="left">
+<img src="docs/assets/e4eVSii2s.png" width="400px"/>
+</p>
 
 
 
