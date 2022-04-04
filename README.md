@@ -23,12 +23,12 @@
 Official Pytorch Implementation of "<a href="https://arxiv.org/abs/2110.08398"> Mind the Gap: Domain Gap Control for Single Shot Domain Adaptation for Generative Adversarial Networks</a>"
 
 
-## Getting Started
-### Google Colab 
+## Google Colab 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ZPdesu/MindTheGap/blob/main/MTG_playground.ipynb)
 
 We set up a [Colab Notebook](https://colab.research.google.com/github/ZPdesu/MindTheGap/blob/main/MTG_playground.ipynb) so you can play with it yourself :) Everything to get started is in it!
 
+## Getting Started
 ### Prerequisites
 - Linux or macOS
 - NVIDIA GPU + CUDA CuDNN
