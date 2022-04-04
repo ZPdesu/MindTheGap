@@ -10,8 +10,8 @@ from utils.model_utils import download_weight
 
 parser = argparse.ArgumentParser(description='Align_face')
 
-parser.add_argument('--input_dir', type=str, default='input', help='directory with unprocessed images')
-parser.add_argument('--output_dir', type=str, default='input_aligned', help='output directory')
+parser.add_argument('--input_dir', type=str, default='face_images/Unaligned', help='directory with unprocessed images')
+parser.add_argument('--output_dir', type=str, default='face_images/Aligned', help='output directory')
 parser.add_argument('--output_size', '-s', type=int, default=1024, choices=[2 ** n for n in range(5, 11)],
                     help='size to downscale the input images to, must be power of 2')
 parser.add_argument('--seed', type=int, default=127,
